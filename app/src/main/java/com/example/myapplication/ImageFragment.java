@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class ImageFragment extends Fragment {
@@ -81,10 +83,17 @@ public class ImageFragment extends Fragment {
                     e.printStackTrace();
                 }
 
+                //show image
                 if(uri != null){
                     imageview.setImageBitmap(bitmap);
                     imageview.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
+
+                //Log.d("Base64", base64_img);
+
+                //send to classifier api
+                MyNetwork.RetrofitRequest request = MyNetwork.RetrofitRequest.getInstance();
+                request.sendPicture(bitmap);
             }
         }
     }
