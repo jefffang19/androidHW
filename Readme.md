@@ -1,6 +1,6 @@
 Todo:
-1. Optimize the Ui
-	Display top 3
-	Back Button
+1. Optimize the Ui<br>
+	>Display top 3<br>
+	>Back Button
 
 2. Zenbo
