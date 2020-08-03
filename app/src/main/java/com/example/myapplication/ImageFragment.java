@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,10 +27,10 @@ public class ImageFragment extends Fragment {
     final Intent[] intent = new Intent[1];
 
     ImageView imageview;
+    Bitmap selectedPicture = null;
 
     static ImageFragment newInstance(){
-        ImageFragment imageFragment = new ImageFragment();
-        return imageFragment;
+        return new ImageFragment();
     }
 
     @Override
@@ -40,8 +41,8 @@ public class ImageFragment extends Fragment {
         //Button button = findViewById(R.id.clickBtn);
         View view = inflater.inflate(R.layout.show_pic, container, false);
 
-
         Button clkButton = view.findViewById(R.id.clickBtn);
+        Button predictButton = view.findViewById(R.id.predictBtn);
         imageview = view.findViewById(R.id.imageView2);
 
         //if click button, select photo from album
@@ -60,6 +61,19 @@ public class ImageFragment extends Fragment {
             }
         });
 
+        //click this button to predict
+        predictButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(selectedPicture == null) return;
+                //send to classifier api
+                changeFragment(MyNetwork.newInstance());
+                MyNetwork.RetrofitRequest request = MyNetwork.RetrofitRequest.getInstance();
+                request.sendPicture(selectedPicture);
+            }
+        });
+
+
         return view;
     }
 
@@ -76,25 +90,25 @@ public class ImageFragment extends Fragment {
                 Log.d("Activity Result Debug", ""+uri);
 
                 //get image uri as a bitmap
-                Bitmap bitmap = null;
                 try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                    selectedPicture = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 //show image
                 if(uri != null){
-                    imageview.setImageBitmap(bitmap);
+                    imageview.setImageBitmap(selectedPicture);
                     imageview.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
 
                 //Log.d("Base64", base64_img);
-
-                //send to classifier api
-                MyNetwork.RetrofitRequest request = MyNetwork.RetrofitRequest.getInstance();
-                request.sendPicture(bitmap);
             }
         }
+    }
+
+    public void changeFragment(Fragment f){
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, f).commit();
     }
 }
